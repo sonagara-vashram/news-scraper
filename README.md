@@ -1,7 +1,6 @@
 # 📰 Professional News Scraper
 
 [![Python](https://img.shields.io/badge/Python-3.7+-blue.svg)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Code Style](https://img.shields.io/badge/code%20style-professional-brightgreen.svg)](https://github.com/sonagara-vashram/news-scraper)
 
 A robust, enterprise-grade Python news article scraper that intelligently extracts **titles**, **content**, and **author information** from web pages with advanced error handling, multiple extraction strategies, and professional logging.
@@ -263,10 +262,6 @@ We welcome contributions! Here's how to get started:
 - Include docstrings for public methods
 - Add tests for new features
 - Update documentation as needed
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🌟 Support
 
