@@ -463,14 +463,14 @@ def main():
         sys.exit(1)
     
     url = sys.argv[1]
-    print(f"🚀 Starting news scraper for: {url}")
+    print(f"Starting news scraper for: {url}")
     
     scraper = NewsScraper()
     
     try:
-        print("📥 Fetching article content...")
+        print("Fetching article content...")
         article_data = scraper.scrape_article(url)
-        print("✅ Article scraped successfully!")
+        print("Article scraped successfully!")
         scraper.display_article(article_data)
         
     except NewsScraperError as e:
