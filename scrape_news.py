@@ -142,7 +142,88 @@ class NewsScraper:
             logger.warning("No content paragraphs found")
             return "No content available"
         
-        return " ".join(content_paragraphs)
+        # Filter out unwanted paragraphs with safety check
+        logger.info("Starting content filtering...")
+        try:
+            filtered_paragraphs = self._filter_unwanted_paragraphs(content_paragraphs)
+            logger.info("Content filtering completed successfully")
+        except Exception as e:
+            logger.error(f"Error in content filtering: {e}")
+            # Fallback: return original content if filtering fails
+            filtered_paragraphs = content_paragraphs
+        
+        if not filtered_paragraphs:
+            logger.warning("No content paragraphs found after filtering")
+            return "No content available"
+        
+        return " ".join(filtered_paragraphs)
+    
+    def _filter_unwanted_paragraphs(self, paragraphs: list) -> list:
+        """
+        Filter out paragraphs containing unwanted text patterns.
+        
+        Args:
+            paragraphs (list): List of paragraph text strings
+            
+        Returns:
+            list: Filtered list of paragraphs
+        """
+        logger.info(f"Starting paragraph filtering with {len(paragraphs)} paragraphs")
+        
+        # Define unwanted text patterns (case-insensitive) - simplified list
+        unwanted_patterns = [
+            'sign up', 'signup', 'log in', 'login',
+            'subscribe', 'newsletter',
+            'follow us', 'follow @',
+            'register', 'create account',
+            'download app', 'get the app',
+            'click here', 'learn more',
+            'advertisement', 'sponsored',
+            'buy now', 'shop now',
+            'contact us', 'support',
+            'privacy policy', 'cookie policy'
+        ]
+        
+        filtered_paragraphs = []
+        
+        try:
+            for i, paragraph in enumerate(paragraphs):
+                logger.debug(f"Processing paragraph {i+1}/{len(paragraphs)}")
+                
+                # Skip empty or very short paragraphs
+                if not paragraph or len(paragraph.strip()) < 10:
+                    logger.debug(f"Skipping short paragraph: {paragraph[:30]}")
+                    continue
+                
+                paragraph_lower = paragraph.lower()
+                contains_unwanted = False
+                
+                # Check for unwanted patterns - simplified approach
+                for pattern in unwanted_patterns:
+                    if pattern in paragraph_lower:
+                        contains_unwanted = True
+                        logger.debug(f"Filtered paragraph with '{pattern}': {paragraph[:50]}...")
+                        break
+                
+                # Simple additional checks without complex combinations
+                if not contains_unwanted:
+                    # Check for very short navigation text
+                    word_count = len(paragraph.split())
+                    if word_count <= 3 and any(word in paragraph_lower for word in ['home', 'menu', 'next', 'back']):
+                        contains_unwanted = True
+                        logger.debug(f"Filtered navigation text: {paragraph}")
+                
+                if not contains_unwanted:
+                    filtered_paragraphs.append(paragraph)
+                    logger.debug(f"Keeping paragraph: {paragraph[:50]}...")
+                    
+        except Exception as e:
+            logger.error(f"Error in filtering: {e}")
+            # Return original paragraphs if filtering fails
+            return paragraphs
+        
+        logger.info(f"Filtering complete: {len(paragraphs)} -> {len(filtered_paragraphs)} paragraphs")
+        return filtered_paragraphs
     
     def extract_author(self, soup: BeautifulSoup) -> str:
         """
@@ -382,10 +463,14 @@ def main():
         sys.exit(1)
     
     url = sys.argv[1]
+    print(f"🚀 Starting news scraper for: {url}")
+    
     scraper = NewsScraper()
     
     try:
+        print("📥 Fetching article content...")
         article_data = scraper.scrape_article(url)
+        print("✅ Article scraped successfully!")
         scraper.display_article(article_data)
         
     except NewsScraperError as e:
